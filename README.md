@@ -1,0 +1,3 @@
+- reference:
+  - https://github.com/py-pdf/sample-files/blob/main/004-pdflatex-4-pages/pdflatex-4-pages.pdf
+  - https://sougaaat.medium.com/end-to-end-implementation-of-a-rag-pipeline-using-langchain-v0-3-8691690368a3
