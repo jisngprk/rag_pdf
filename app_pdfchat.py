@@ -115,7 +115,7 @@ qa_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-qa_chain = create_stuff_documents_chain(chatmodel, qa_prompt)
+qa_chain = create_stuff_documents_chain(chatmodel, qa_prompt) # Passes the list of documents to the model
 ## final RAG chain
 coversational_rag_chain = create_retrieval_chain(history_aware_retriever, qa_chain)
 
