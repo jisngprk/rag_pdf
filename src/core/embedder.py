@@ -3,20 +3,20 @@ import time
 ## settings up the env
 import os
 from dotenv import load_dotenv
-load_dotenv()
-
-## langchain dependencies
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
+from ..config.settings import CHUNK_SIZE, CHUNK_OVERLAP, EMBEDDING_MODEL_NAME
+
+load_dotenv()
 
 class Embedder:
-    def __init__(self, embed_model_name: str, chunk_size: int, chunk_overlap: int, data_path: str):
-        self.embed_model_name = embed_model_name   
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
+    def __init__(self, data_path: str):
+        self.chunk_size = CHUNK_SIZE
+        self.chunk_overlap = CHUNK_OVERLAP
+        self.embed_model_name = EMBEDDING_MODEL_NAME
 
         if not os.path.exists(data_path):
             raise FileNotFoundError(
@@ -28,7 +28,10 @@ class Embedder:
         self.init_resources()
 
     def init_resources(self):
-        self.text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.chunk_size, 
+            chunk_overlap=self.chunk_overlap
+        )
         self.embeddings = HuggingFaceEmbeddings(model_name=self.embed_model_name)
 
     def run(self, documents: list[Document]):

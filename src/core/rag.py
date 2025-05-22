@@ -1,20 +1,20 @@
 from langchain_chroma import Chroma
-
-## LangChain dependencies
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_groq import ChatGroq
-from langchain_chroma import Chroma
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-# from langchain_cohere.chat_models import ChatCohere
-## LCEL implementation of LangChain ConversationalRetrievalChain
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+
+from ..config.settings import TOP_K_RESULTS
 
 class RAG:
     def __init__(self, vectorDB: Chroma, chatmodel: ChatGroq):
         self.vectorDB = vectorDB
-        self.kb_retriever = kb_retriever = vectorDB.as_retriever(search_type="similarity",search_kwargs={"k": 3})
+        self.kb_retriever = kb_retriever = vectorDB.as_retriever(
+            search_type="similarity",
+            search_kwargs={"k": TOP_K_RESULTS}
+        )
         self.chatmodel = chatmodel
         self.retriever = retriever = self.init_history_aware_retriever(kb_retriever, chatmodel)
         self.qa_chain = self.init_qa_chain(retriever, chatmodel)

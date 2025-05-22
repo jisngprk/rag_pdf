@@ -4,16 +4,19 @@ from langchain.prompts import PromptTemplate
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 
+from ..config.settings import CHUNK_SIZE, CHUNK_OVERLAP
+
 class Preprocessor:
     def __init__(self, llm: ChatGroq):
         self.llm = llm
-        self.clean_chain = self.get_clean_chain()
+        self.chain = self.get_clean_sequential_chain()
 
     def get_recovery_prompt(self):
         template = """
         You are a helpful assistant that cleans text.
         You will be given a text and you will need to recover the original text.
         If the word looks like broken, you should recover it. 
+        ONLY RECOVER THE TEXT. DO NOT SUMMARIZE THE TEXT.
 
         Please recover the original text:
 
@@ -73,19 +76,19 @@ class Preprocessor:
         formatting_chain = LLMChain(llm=self.llm, prompt=formatting_prompt, output_key='formatted_text')
         return formatting_chain
 
-    def get_clean_and_format_chain(self):
+    def get_clean_reformat_sequential_cahin(self):
         recovery_chain = self.get_recovery_chain()
         formatting_chain = self.get_formatting_chain()
         sequential_chain = SequentialChain(chains=[recovery_chain, formatting_chain], input_variables=["text"], output_variables=["cleaned_text", "formatted_text"])
         return sequential_chain
     
-    def get_clean_chain(self):
+    def get_clean_sequential_chain(self):
         recovery_chain = self.get_recovery_chain()
         sequential_chain = SequentialChain(chains=[recovery_chain], input_variables=["text"], output_variables=["cleaned_text"])
         return sequential_chain
     
     def run(self, text: str):
-        return self.clean_chain.invoke({"text": text})
+        return self.chain.invoke({"text": text})
     
 
 class PdfLoader:
@@ -107,8 +110,14 @@ class PdfLoader:
         doc = self.parse_pdf(pdf_path)
         updated_documents = []
         for document in doc:
-            print(document)
             updated_document = self.preprocessor.run({"text": document.page_content})
+            print("-"*100)
+            print(updated_document.keys())
+            print('-'*100)
+            print(updated_document['text'])
+            print('-'*100)
+            print(updated_document['cleaned_text'])
+            print("-"*100)
             document.page_content = updated_document['cleaned_text']
             updated_documents.append(document)
         return updated_documents
