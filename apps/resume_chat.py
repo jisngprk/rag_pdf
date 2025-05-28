@@ -92,7 +92,7 @@ def main():
                 st.write("Thinking...")
                 # 캐시된 파이프라인 사용
                 pipeline = st.session_state["pipeline"]
-                response = pipeline.invoke(user_query)
+                response = pipeline.invoke(user_query, chat_history=st.session_state["messages"])
                 st.write(response['answer'])
                 # 어시스턴트 메시지 추가
                 st.session_state["messages"].append({"role": "assistant", "content": response['answer']})

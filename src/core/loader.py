@@ -106,18 +106,19 @@ class PdfLoader:
             doc_container.append(doc)
         return doc_container
     
-    def run(self, pdf_path: str) -> list[Document]:
+    def run(self, pdf_path: str, is_clean: bool = True) -> list[Document]:
         doc = self.parse_pdf(pdf_path)
-        updated_documents = []
+        if not is_clean:
+            print(doc[0].page_content)
+            return doc
+        
+        ret = []
         for document in doc:
             updated_document = self.preprocessor.run({"text": document.page_content})
-            print("-"*100)
-            print(updated_document.keys())
-            print('-'*100)
-            print(updated_document['text'])
-            print('-'*100)
-            print(updated_document['cleaned_text'])
-            print("-"*100)
             document.page_content = updated_document['cleaned_text']
-            updated_documents.append(document)
-        return updated_documents
+            ret.append(document)
+        
+        print("-"*100)
+        print(ret[0].page_content)
+        print("-"*100)
+        return ret

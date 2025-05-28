@@ -5,6 +5,7 @@ from langchain_groq import ChatGroq
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.messages import BaseMessage
 
 from ..config.settings import TOP_K_RESULTS
 
@@ -86,8 +87,12 @@ class RAG:
     def get_documents(self, query: str):
         return self.vectorDB.similarity_search(query)
     
-    def invoke(self, query: str):
-        return self.qa_chain.invoke({"input": query})
+    def invoke(self, query: str, chat_history: list[BaseMessage] = None):
+        if chat_history is None:
+            data = {"input": query}
+        else:
+            data = {"input": query, "chat_history": chat_history}
+        return self.qa_chain.invoke(data)
 
 
 
